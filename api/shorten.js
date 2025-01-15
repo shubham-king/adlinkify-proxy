@@ -1,24 +1,33 @@
+const express = require('express');
 const axios = require('axios');
+const app = express();
+const port = process.env.PORT || 3000;
 
-module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*'); // Allow cross-origin requests
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+// Enable JSON parsing
+app.use(express.json());
 
-  const apiKey = '62719b77623132400c87e567f8b588dadc9b5205';
-  const { url } = req.query; // Extract the `url` query parameter
-
+// Proxy endpoint to shorten the URL
+app.get('/api/shorten', async (req, res) => {
+  const { url } = req.query;
+  
+  // Ensure the URL parameter is provided
   if (!url) {
     return res.status(400).json({ error: 'URL parameter is required' });
   }
 
-  const apiUrl = `https://linkshortify.com/st?api=${apiKey}&url=${encodeURIComponent(url)}`;
-
   try {
-    const response = await axios.get(apiUrl);
-    res.status(200).json(response.data); // Send the shortened URL as JSON
+    // Make the request to the LinkShortify API to shorten the URL
+    const response = await axios.get(`https://linkshortify.com/st?api=62719b77623132400c87e567f8b588dadc9b5205&url=${encodeURIComponent(url)}`);
+
+    // Return the shortened URL in the response
+    res.json({ shortenedUrl: response.data });
   } catch (error) {
-    console.error('Error shortening URL:', error.message);
+    console.error('Error shortening URL:', error);
     res.status(500).json({ error: 'Failed to shorten URL' });
   }
-};
+});
+
+// Start the server
+app.listen(port, () => {
+  console.log(`Server is running at http://localhost:${port}`);
+});
