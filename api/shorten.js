@@ -1,12 +1,14 @@
 const express = require('express');
-const cors = require('cors');
-const axios = require('axios');  // We will use axios to make HTTP requests
+const axios = require('axios');
+const cors = require('cors');  // Add CORS middleware
+
 const app = express();
-const port = process.env.PORT || 3000;
+const API_KEY = '62719b77623132400c87e567f8b588dadc9b5205';
 
-app.use(cors());
-
-const API_KEY = '62719b77623132400c87e567f8b588dadc9b5205'; // Your LinkShortify API key
+// Enable CORS
+app.use(cors({
+  origin: 'https://xplayvine.blogspot.com',  // Only allow this domain to access your API
+}));
 
 app.get('/api/shorten', async (req, res) => {
   const { url } = req.query;
@@ -16,7 +18,7 @@ app.get('/api/shorten', async (req, res) => {
   }
 
   try {
-    // Call the LinkShortify API to shorten the URL
+    // Shorten the URL
     const response = await axios.get(`https://linkshortify.com/st?api=${API_KEY}&url=${encodeURIComponent(url)}`);
     res.json({ shortenedUrl: response.data });
   } catch (error) {
@@ -25,6 +27,6 @@ app.get('/api/shorten', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
 });
